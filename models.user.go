@@ -1,10 +1,13 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type user struct {
-    Username string `json:"username"`
-    Password string `json:"-"`
+	Username string `json:"username"`
+	Password string `json:"-"`
 }
 
 var userList = []user{
@@ -13,10 +16,27 @@ var userList = []user{
 	user{Username: "user3", Password: "pass3"},
 }
 
+// Register a new user with the given username and password
 func registerNewUser(username, password string) (*user, error) {
-	return nil, errors.New("placeholder error")
+	if strings.TrimSpace(password) == "" {
+		return nil, errors.New("The password can't be empty")
+	} else if !isUsernameAvailable(username) {
+		return nil, errors.New("The username isn't available")
+	}
+
+	u := user{Username: username, Password: password}
+
+	userList = append(userList, u)
+
+	return &u, nil
 }
 
+// Check if the supplied username is available
 func isUsernameAvailable(username string) bool {
-	return false
+	for _, u := range userList {
+		if u.Username == username {
+			return false
+		}
+	}
+	return true
 }
