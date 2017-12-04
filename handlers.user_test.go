@@ -45,7 +45,6 @@ func TestShowRegistrationPageUnauthenticated(t *testing.T) {
 
 func TestRegisterUnauthenticated(t *testing.T) {
 	saveLists()
-	w := httptest.NewRecorder()
 
 	r := getRouter(true)
 
@@ -56,22 +55,20 @@ func TestRegisterUnauthenticated(t *testing.T) {
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Content-Length", strconv.Itoa(len(registrationPayload)))
 
-	r.ServeHTTP(w, req)
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		statusOK := w.Code == http.StatusOK
 
-	if w.Code != http.StatusOK {
-		t.Fail()
-	}
+		p, err := ioutil.ReadAll(w.Body)
+		pageOK := err == nil && strings.Index(string(p), "<title>Successful registration &amp; Login</title>") > 0
 
-	p, err := ioutil.ReadAll(w.Body)
-	if err != nil || strings.Index(string(p), "<title>Successful registration &amp; Login</title>") < 0 {
-		t.Fail()
-	}
+		return statusOK && pageOK
+	})
+
 	restoreLists()
 }
 
 func TestRegisterUnauthenticatedUnavailableUsername(t *testing.T) {
 	saveLists()
-	w := httptest.NewRecorder()
 
 	r := getRouter(true)
 
@@ -82,10 +79,11 @@ func TestRegisterUnauthenticatedUnavailableUsername(t *testing.T) {
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Content-Length", strconv.Itoa(len(registrationPayload)))
 
-	r.ServeHTTP(w, req)
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		statusBad := w.Code == http.StatusBadRequest
 
-	if w.Code != http.StatusBadRequest {
-		t.Fail()
-	}
+		return statusBad
+	})
+
 	restoreLists()
 }

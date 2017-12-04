@@ -9,11 +9,25 @@ func initializeRoutes() {
 
 	userRoutes := router.Group("/u")
 	{
-		userRoutes.GET("/register", showRegistrationPage)
+		userRoutes.GET("/login", ensureNotLoggedIn(), showLoginPage)
 
-		userRoutes.POST("/register", register)
+		userRoutes.POST("/login", ensureNotLoggedIn(), performLogin)
+
+		userRoutes.GET("/logout", ensureLoggedIn(), logout)
+
+		userRoutes.GET("/register", ensureNotLoggedIn(), showRegistrationPage)
+
+		userRoutes.POST("/register", ensureNotLoggedIn(), register)
 	}
 
-	// Handle GET requests at /article/view/some_article_id
-	router.GET("/article/view/:article_id", getArticle)
+	articleRoutes := router.Group("/article")
+	{
+		// route from Part 1 of the tutorial
+		// Handle GET requests at /article/view/some_article_id
+		articleRoutes.GET("/view/:article_id", getArticle)
+
+		articleRoutes.GET("/create", ensureLoggedIn(), showArticleCreationPage)
+
+		articleRoutes.POST("/create", ensureLoggedIn(), createArticle)
+	}
 }

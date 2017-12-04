@@ -29,3 +29,10 @@ func getArticleByID(id int) (*article, error) {
 	}
 	return nil, errors.New("Article not found")
 }
+
+func createNewArticle(title, content string) (*article, error) {
+	originalLength := len(articleList)
+	a := article{ID: originalLength + 1, Title: title, Content: content}
+	articleList = append(articleList, a)
+	return &a, nil
+}
